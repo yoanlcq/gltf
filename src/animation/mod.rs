@@ -187,8 +187,8 @@ impl<'a> Target<'a> {
 
     /// Returns the node's property to modify or the 'weights' of the morph
     /// targets it instantiates.
-    pub fn property(&self) -> Property {
-        self.json.path.unwrap()
+    pub fn property(&self) -> &Property {
+        self.json.path.as_ref().unwrap()
     }
 }
 

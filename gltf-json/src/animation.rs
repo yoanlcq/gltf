@@ -49,10 +49,10 @@ pub enum Interpolation {
 }
 
 /// Specifies a property to animate.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub enum Property {
     /// XYZ translation vector.
-    Translation = 1,
+    Translation,
 
     /// XYZW rotation quaternion.
     Rotation,
@@ -62,6 +62,9 @@ pub enum Property {
 
     /// Weights of morph targets.
     MorphTargetWeights,
+
+    /// Arbitrary arbitrarily-named property (Note, this is non-standard).
+    Arbitrary(String),
 }
 
 /// A keyframe animation.
@@ -243,7 +246,7 @@ impl<'de> de::Deserialize<'de> for Checked<Property> {
                     "rotation" => Valid(Rotation),
                     "scale" => Valid(Scale),
                     "weights" => Valid(MorphTargetWeights),
-                    _ => Invalid,
+                    s => Valid(Arbitrary(s.to_string())),
                 })
             }
         }
@@ -256,11 +259,12 @@ impl ser::Serialize for Property {
     where
         S: ser::Serializer
     {
-        serializer.serialize_str(match *self {
+        serializer.serialize_str(match self {
             Property::Translation => "translation",
             Property::Rotation => "rotation",
             Property::Scale => "scale",
             Property::MorphTargetWeights => "weights",
+            Property::Arbitrary(s) => s.as_str(),
         })
     }
 }

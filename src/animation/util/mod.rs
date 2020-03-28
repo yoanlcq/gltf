@@ -58,6 +58,23 @@ pub enum MorphTargetWeights<'a> {
     F32(accessor::Iter<'a, f32>),
 }
 
+/// Arbitrary value animations.
+#[derive(Clone, Debug)]
+pub enum ArbitraryValues<'a> {
+    /// Weights of type `i8`.
+    I8(accessor::Iter<'a, i8>),
+    /// Weights of type `u8`.
+    U8(accessor::Iter<'a, u8>),
+    /// Weights of type `i16`.
+    I16(accessor::Iter<'a, i16>),
+    /// Weights of type `u16`.
+    U16(accessor::Iter<'a, u16>),
+    /// Weights of type `u16`.
+    U32(accessor::Iter<'a, u32>),
+    /// Weights of type `f32`.
+    F32(accessor::Iter<'a, f32>),
+}
+
 /// Animation output sampler values.
 pub enum ReadOutputs<'a> {
     /// XYZ translations of type `[f32; 3]`.
@@ -71,6 +88,9 @@ pub enum ReadOutputs<'a> {
 
     /// Morph target animations.
     MorphTargetWeights(MorphTargetWeights<'a>),
+
+    /// Arbitrary values (non-standard!)
+    ArbitraryValues(ArbitraryValues<'a>),
 }
 
 impl<'a> Rotations<'a> {
@@ -170,6 +190,16 @@ where F: Clone + Fn(Buffer<'a>) -> Option<&'s [u8]>,
                     DataType::U16 => Iter::new(output, self.get_buffer_data.clone()).map(|x| ReadOutputs::MorphTargetWeights(MorphTargetWeights::U16(x))),
                     DataType::F32 => Iter::new(output, self.get_buffer_data.clone()).map(|x| ReadOutputs::MorphTargetWeights(MorphTargetWeights::F32(x))),
                     _ => unreachable!()
+                }
+            },
+            Property::Arbitrary(_) => {
+                match output.data_type() {
+                    DataType::I8  => Iter::new(output, self.get_buffer_data.clone()).map(|x| ReadOutputs::ArbitraryValues(ArbitraryValues::I8(x))),
+                    DataType::U8  => Iter::new(output, self.get_buffer_data.clone()).map(|x| ReadOutputs::ArbitraryValues(ArbitraryValues::U8(x))),
+                    DataType::I16 => Iter::new(output, self.get_buffer_data.clone()).map(|x| ReadOutputs::ArbitraryValues(ArbitraryValues::I16(x))),
+                    DataType::U16 => Iter::new(output, self.get_buffer_data.clone()).map(|x| ReadOutputs::ArbitraryValues(ArbitraryValues::U16(x))),
+                    DataType::U32 => Iter::new(output, self.get_buffer_data.clone()).map(|x| ReadOutputs::ArbitraryValues(ArbitraryValues::U32(x))),
+                    DataType::F32 => Iter::new(output, self.get_buffer_data.clone()).map(|x| ReadOutputs::ArbitraryValues(ArbitraryValues::F32(x))),
                 }
             },
         }
